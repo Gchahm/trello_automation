@@ -1,38 +1,36 @@
 from selenium import webdriver
-import util
+import logging
 
 
-def get_flight_details(url, max_wait=10):
-    driver = webdriver.Chrome()
-    driver.get(url)
-    components = get_flight_component(driver, 0, max_wait)
-    result = get_components_info(components)
-    driver.close()
-    return result
+class TapScrapper:
+
+    def __init__(self, max_wait=10):
+        self._driver = webdriver.Chrome()
+        self._max_wait = max_wait
+        self.components = []
+
+    def get_reservation_details(self, url):
+        self._driver.get(url)
+        self._get_reservation_components()
+        return [parse_flight_info(text) for text in self.components_text]
+
+    def _get_reservation_components(self):
+        for i in range(1, self._max_wait + 1):
+            self._driver.implicitly_wait(1)
+            self.components = self._driver.find_elements_by_tag_name('app-extras-flight')
+            self.components_text = [component.text for component in self.components]
+            print(i)
+            if len(self.components_text) > 0 and len(self.components_text[0]) > 7:
+                print('here', len(self.components_text), len(self.components_text[0]))
+                break
+            if i >= self._max_wait:
+                raise Exception('waited for to long')
 
 
-def get_flight_component(driver, tries, max_wait):
-    driver.implicitly_wait(tries)
-    try:
-        driver.find_element_by_tag_name('app-extras-flight')
-        elements = driver.find_elements_by_tag_name('app-extras-flight')
-        return elements
-    except:
-        if tries > max_wait:
-            raise Exception('waited for to long')
-        return get_flight_component(driver, tries + 1, max_wait)
-
-
-def get_components_info(components):
-    result = []
-    for component in components:
-        result.append(get_flight_info(component))
-    return result
-
-
-def get_flight_info(component):
-    status = 'Cancelado' if component.text.find('cancelado') > 0 else 'Ativo'
-    info = component.text.replace('Cancelado\n', '').split('\n')
+def parse_flight_info(component_text):
+    logging.debug('Component Text: ' + '|'.join(component_text.split('\n')))
+    status = 'Cancelado' if component_text.find('cancelado') > 0 else 'Ativo'
+    info = component_text.replace('Cancelado\n', '').split('\n')
     from_to = info[0]
     split = from_to.find('para')
     return {
@@ -44,8 +42,3 @@ def get_flight_info(component):
         'arrival_time': info[4],
         'trip_length': info[6],
     }
-
-
-if __name__ == '__main__':
-    URL = 'https://myb.flytap.com/my-bookings/details/mr8dyf/BorgesdoNascimento'
-    util.save_json_to_file(get_flight_details(URL), 'output.json')

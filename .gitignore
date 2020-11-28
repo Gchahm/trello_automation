@@ -2,6 +2,7 @@
 .env
 pyvenv.cfg
 ghostdriver.log
+logfile
 
 files/
 
