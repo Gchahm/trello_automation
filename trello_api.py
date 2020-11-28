@@ -3,7 +3,7 @@ import json
 import util
 import logging
 
-BOARD_ID = 'yLKe88Cg'
+BOARD_ID = 'Uu80gVQa'
 
 
 def get_filtered_cards():

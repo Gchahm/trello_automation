@@ -19,9 +19,7 @@ class TapScrapper:
             self._driver.implicitly_wait(1)
             self.components = self._driver.find_elements_by_tag_name('app-extras-flight')
             self.components_text = [component.text for component in self.components]
-            print(i)
             if len(self.components_text) > 0 and len(self.components_text[0]) > 7:
-                print('here', len(self.components_text), len(self.components_text[0]))
                 break
             if i >= self._max_wait:
                 raise Exception('waited for to long')

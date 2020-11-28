@@ -5,7 +5,7 @@ import scraper
 
 
 def automation(trello_cards):
-    tap_scrapper = scraper.TapScrapper(max_wait=20)
+    tap_scrapper = scraper.TapScrapper(max_wait=60)
     for card in trello_cards:
         card_id = card['id']
         try:
@@ -31,6 +31,8 @@ def load_trello_cards():
 def add_comment(card_id, reservation_details):
     comment = ''
     for fd in reservation_details:
+        comment += f'##Flight Number: {fd.pop("flight_number")}\n'
+        comment += f'###Status: {fd.pop("status")}\n'
         for key, value in fd.items():
             comment += f'{key}: {value}\n'
         comment += '\n'
