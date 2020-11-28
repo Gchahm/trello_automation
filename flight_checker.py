@@ -2,19 +2,16 @@ import scraper
 
 
 def check_flights(parsed):
-    flights = []
-    errors = []
-    for item in parsed[:10]:
+    for item in parsed:
         url = item['tap_url']
         item_id = item['id']
         try:
-            flight_details = scraper.get_flight_details(url, max_wait=20)
-            flights.append({
+            result = {
                 'id': item_id,
                 'url': url,
-                'flight_details': flight_details
-            })
-        except:
-            errors.append(item_id)
+                'flight_details': scraper.get_flight_details(url, max_wait=20)
+            }
+            yield result, None
+        except Exception as err:
+            yield None, {'id': item_id, 'message': str(err)}
 
-    return flights, errors

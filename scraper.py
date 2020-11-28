@@ -31,19 +31,18 @@ def get_components_info(components):
 
 
 def get_flight_info(component):
-    info = component.text.split('\n')
+    status = 'Cancelado' if component.text.find('cancelado') > 0 else 'Ativo'
+    info = component.text.replace('Cancelado\n', '').split('\n')
     from_to = info[0]
     split = from_to.find('para')
     return {
-        'from': from_to[:split - 1],
-        'to:': from_to[split + 5:],
-        'date': info[1][:17],
-        'departure_time': info[2],
-        'departure_location': info[3],
+        'flight_number': info[7],
+        'status': status,
+        'from': info[3] + ' - ' + from_to[:split - 1],
+        'to:': info[5] + ' - ' + from_to[split + 5:],
+        'date': info[1][:17] + ' at ' + info[2],
         'arrival_time': info[4],
-        'arrival_location': info[5],
         'trip_length': info[6],
-        'flight_number': info[7]
     }
 
 

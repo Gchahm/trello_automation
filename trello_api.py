@@ -10,21 +10,27 @@ def get_cards():
     """
     # Loads cards from trello board
     board_cards_url = "https://api.trello.com/1/boards/yLKe88Cg/cards"
-    response = _trello_get(board_cards_url)
+    response = _trello_base_request(board_cards_url)
     cards = json.loads(response.text)
     return _parse_result(cards)
 
 
-def _trello_get(url, headers=None, params=None):
+def add_comment(card_id, comment):
+    url = f"https://api.trello.com/1/cards/{card_id}/actions/comments"
+    params = {'text': comment}
+    return _trello_base_request(url, 'POST', params=params)
+
+
+def _trello_base_request(url, request_type='GET', headers=None, params=None):
     if params is None:
         params = {}
     if headers is None:
         headers = {}
 
     headers = {**_BASE_HEADERS, **headers}
-    params = {**__BASE_PARAMS, **params}
+    params = {**_BASE_PARAMS, **params}
     return requests.request(
-        "GET",
+        request_type,
         url,
         headers=headers,
         params=params
@@ -36,7 +42,7 @@ _BASE_HEADERS = {
 }
 
 
-__BASE_PARAMS = {
+_BASE_PARAMS = {
     'key': util.get_env_variable('TRELLO_KEY'),
     'token': util.get_env_variable('TRELLO_TOKEN')
 }
