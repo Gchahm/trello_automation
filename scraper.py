@@ -3,10 +3,16 @@ from selenium import webdriver
 
 class TapScrapper:
 
-    def __init__(self, max_wait=10):
-        self._driver = webdriver.Chrome()
+    def __init__(self, max_wait=60, driver='chrome'):
+        if driver == 'safari':
+            self._driver = webdriver.Safari()
+        else:
+            self._driver = webdriver.Chrome()
         self._max_wait = max_wait
         self.components = []
+
+    def __del__(self):
+        self._driver.close()
 
     def get_reservation_details(self, url):
         self._driver.get(url)
@@ -54,3 +60,13 @@ class FlightInfo:
         comment += f'Arrival Time: {self.arrival_time}\n'
         comment += f'Trip Length: {self.trip_length}\n'
         return comment
+
+
+if __name__ == '__main__':
+    url = 'https://myb.flytap.com/my-bookings/details/m2ynra/costaTeixeira'
+    scrapper = TapScrapper()
+    reservation = scrapper.get_reservation_details(url)
+    assert len(reservation) == 1
+    flight = reservation[0]
+    assert isinstance(flight, FlightInfo)
+    print('tests passed')
