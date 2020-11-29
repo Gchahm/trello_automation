@@ -23,7 +23,7 @@ def automation(trello_cards):
 
 
 def load_trello_cards():
-    trello_cards = trello_api.get_filtered_cards()
+    trello_cards = trello_api.TrelloHelper().get_filtered_cards()
     file_manager.save_cards(trello_cards)
     return trello_cards
 
@@ -36,7 +36,7 @@ def add_comment(card_id, reservation_details):
         for key, value in fd.items():
             comment += f'{key}: {value}\n'
         comment += '\n'
-    trello_api.add_comment(card_id, comment)
+    trello_api.TrelloHelper().add_comment(card_id, comment)
 
 
 if __name__ == '__main__':
