@@ -135,13 +135,8 @@ class TrelloComment:
     def __lt__(self, other):
         return self.created_at < other.created_at
 
-    def compare_comment(self, comment):
-        """
-        Compare a text with the current comment
-        :param comment: comment text for the nex comment
-        :return: True / false if they are equal
-        """
-        return self.text.replace('#', '') == comment.replace('#', '')
+    def __eq__(self, other):
+        return self.text.replace('#', '') == other.text.replace('#', '')
 
 
 class TrelloLabel:
@@ -152,13 +147,16 @@ class TrelloLabel:
         self.color = raw['color']
 
 
-if __name__ == '__main__':
-    # helper = TrelloHelper()
-    # for card in helper.get_filtered_cards():
-    #     comments = helper.get_comments(card.card_id)
-    #     if len(comments) > 1:
-    #         comment = comments[0]
-    #         deleted = helper.delete_comment(comment.card_id, comment.comment_id)
+def delete_last_comment():
+    helper = TrelloHelper()
+    for card in helper.get_cards():
+        comments = helper.get_comments(card.card_id, 'Comment ')
+        if len(comments) > 0:
+            comment = comments.pop()
+            d = helper.delete_comment(comment.card_id, comment.comment_id)
+
+
+def tests():
     helper = TrelloHelper('yLKe88Cg')
     assert isinstance(helper.warn_label, TrelloLabel)
     assert len(helper.list_ids) == 2
@@ -175,6 +173,14 @@ if __name__ == '__main__':
     updated = helper.update_comment(comment.card_id, comment.comment_id, 'new text')
     assert isinstance(updated, TrelloComment)
     assert updated.text == 'new text'
+    assert not comment == updated
+    updated.text = 'text'
+    assert comment == updated
     deleted = helper.delete_comment(updated.card_id, updated.comment_id)
     assert isinstance(deleted, dict)
     assert deleted['_value'] is None
+    print('tests passed!')
+
+
+if __name__ == '__main__':
+    tests()
