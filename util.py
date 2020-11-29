@@ -10,8 +10,8 @@ if os.path.isfile(dotenv_file):
     dotenv.load_dotenv(dotenv_file)
 
 
-def save_json_to_file(obj, file_name):
-    content = json.dumps(obj)
+def save_json_to_file(obj, file_name, is_dict=False):
+    content = json.dumps([x for x in obj] if is_dict else [x.__dict__ for x in obj])
     file_path = os.path.join(FILES_DIR, file_name)
     f = open(file_path, 'w')
     f.write(content)

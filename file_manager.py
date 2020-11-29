@@ -12,7 +12,7 @@ def get_errors():
 def add_error(error):
     errors = get_errors()
     errors.append(error)
-    util.save_json_to_file(errors, 'errors.json')
+    util.save_json_to_file(errors, 'errors.json', True)
 
 
 def get_flights():
@@ -26,7 +26,7 @@ def get_flights():
 def add_flight(flight):
     flights = get_flights()
     flights.append(flight)
-    util.save_json_to_file(flights, 'flight_details.json')
+    util.save_json_to_file(flights, 'flight_details.json', True)
 
 
 def save_cards(cards):
