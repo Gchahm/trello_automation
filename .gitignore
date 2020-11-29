@@ -5,6 +5,11 @@ ghostdriver.log
 logfile
 
 files/
+!files/.gitkeep
+
+logfiles/
+!logfiles/.gitkeep
+
 
 ### OSX ###
 .DS_Store
