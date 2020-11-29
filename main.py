@@ -33,7 +33,7 @@ class Automation:
         return reservation_details
 
     def load_trello_cards(self):
-        self.trello_cards = self.trello_helper.get_filtered_cards()
+        self.trello_cards = self.trello_helper.get_cards()
         file_manager.save_cards(self.trello_cards)
 
     def update_trello_card(self, card_id, reservation_details):
