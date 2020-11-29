@@ -28,7 +28,9 @@ class TapScrapper:
 def parse_flight_info(component_text):
     logging.debug('Component Text: ' + '|'.join(component_text.split('\n')))
     status = 'Cancelado' if component_text.find('cancelado') > 0 else 'Ativo'
-    info = component_text.replace('Cancelado\n', '').split('\n')
+    if component_text.text.find('Voado') > 0:
+        status = 'Voado'
+    info = component_text.replace('Cancelado\n', '').replace('Voado\n', '').split('\n')
     from_to = info[0]
     split = from_to.find('para')
     return {
