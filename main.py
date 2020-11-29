@@ -3,13 +3,13 @@ from datetime import datetime
 import file_manager
 import trello_api
 import scraper
-import util
+
 
 class Automation:
 
-    def __init__(self, board_id='Uu80gVQa', scrapper_driver='chrome'):
+    def __init__(self, board_id='Uu80gVQa'):
         self.trello_helper = trello_api.TrelloHelper(board_id)
-        self.tap_scrapper = scraper.TapScrapper(max_wait=60, driver=scrapper_driver)
+        self.tap_scrapper = scraper.TapScrapper(max_wait=60)
         self.trello_cards = None
 
     def start(self):
@@ -63,6 +63,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, filename=f"logfiles/log-{datetime.now().timestamp()}", filemode="a+",
                         format="%(asctime)-15s %(levelname)-8s %(message)s")
     logging.debug('Program Started')
-    driver = util.get_env_variable('DRIVER')
-    Automation(scrapper_driver=driver).start()
+    Automation().start()
     logging.debug('Program Finished')

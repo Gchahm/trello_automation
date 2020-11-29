@@ -26,5 +26,5 @@ def load_json_from_file(file_name):
     return json.loads(result)
 
 
-def get_env_variable(var_name):
-    return os.environ.get(var_name)
+def get_env_variable(var_name, default=None):
+    return os.environ.get(var_name, default)

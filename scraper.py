@@ -1,9 +1,11 @@
 from selenium import webdriver
+import util
 
 
 class TapScrapper:
 
-    def __init__(self, max_wait=60, driver='chrome'):
+    def __init__(self, max_wait=60):
+        driver = util.get_env_variable('DRIVER', 'chrome')
         if driver == 'safari':
             self._driver = webdriver.Safari()
         else:
