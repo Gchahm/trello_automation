@@ -20,8 +20,9 @@ class Automation:
         for card in self.trello_cards:
             try:
                 # Get reservation details from TAP Website and save in files
+                print('Get details from TAP for', card.card_name)
                 reservation_details = self.get_reservation_details(card)
-                self.update_trello_card(card.card_id, reservation_details)
+                self.update_trello_card(card, reservation_details)
             except Exception as err:
                 # Log Error to Log file and save to error file
                 logging.error('error: ' + card.card_id + str(err))
@@ -33,30 +34,35 @@ class Automation:
         return reservation_details
 
     def load_trello_cards(self):
+        print('Loading Trello Cards')
         self.trello_cards = self.trello_helper.get_cards()
+        print('Cards Loaded')
         file_manager.save_cards(self.trello_cards)
 
-    def update_trello_card(self, card_id, reservation_details):
+    def update_trello_card(self, card, reservation_details):
         """
         Get the last comment added by this bot in the card
         Compare the comment with the new comment to be added.
         Add label if mismatch
         Updated the card with a new comment with the details of the flight
-        :param card_id:
+        :param card: TrelloCard instance
         :param reservation_details:
         :return:
         """
-        trello_comments = self.trello_helper.get_comments(card_id)
+        print('Get comments from Trello for card', card.name)
+        trello_comments = self.trello_helper.get_comments(card.card_id)
         comment_text = '\n'.join(flight.comment() for flight in reservation_details)
-        added = self.trello_helper.add_comment(card_id, comment_text)
+        added = self.trello_helper.add_comment(card.card_id, comment_text)
 
         # Check if the card has comments and if the last comment match with current
         if len(trello_comments) > 0:
             last_comment = trello_comments.pop()
-            if last_comment == added:
-                self.trello_helper.add_warn_label(card_id)
+            if last_comment != added:
+                print('Adding warning for card', card.name)
+                self.trello_helper.add_warn_label(card.card_id)
         # Deletes all the other comments to cap a max of 2 bot comments per card
         for comment in trello_comments:
+            print('Deleting extra comment from', card.name)
             self.trello_helper.delete_comment(comment.card_id, comment.comment_id)
 
 

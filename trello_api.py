@@ -41,6 +41,9 @@ class TrelloHelper:
     def add_warn_label(self, card_id):
         return self.trello_api.add_label(card_id, self.warn_label.label_id)
 
+    def remove_warn_label(self, card_id):
+        return self.trello_api.remove_label(card_id, self.warn_label.label_id)
+
 
 class TrelloAPI:
 
@@ -93,6 +96,10 @@ class TrelloAPI:
         url = f'https://api.trello.com/1/cards/{card_id}/idLabels'
         return self._trello_base_request(url, 'POST', params={'value': label_id})
 
+    def remove_label(self, card_id, label_id):
+        url = f'https://api.trello.com/1/cards/{card_id}/idLabels/{label_id}'
+        return self._trello_base_request(url, 'DELETE')
+
     def _trello_base_request(self, url, action='GET', headers=None, params=None):
         if params is None:
             params = {}
@@ -116,6 +123,7 @@ class TrelloCard:
         self.raw = raw
         self.card_id = raw['id']
         self.tap_url = raw['desc'].replace('\n', '')
+        self.name = raw['name']
 
 
 class TrelloComment:
@@ -147,13 +155,14 @@ class TrelloLabel:
         self.color = raw['color']
 
 
-def delete_last_comment():
+def delete_last_comment_remove_tag():
     helper = TrelloHelper()
     for card in helper.get_cards():
-        comments = helper.get_comments(card.card_id, 'Comment ')
+        comments = helper.get_comments(card.card_id)
         if len(comments) > 0:
             comment = comments.pop()
             d = helper.delete_comment(comment.card_id, comment.comment_id)
+            l = helper.remove_warn_label(comment.card_id)
 
 
 def tests():
