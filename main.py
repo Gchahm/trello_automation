@@ -20,7 +20,7 @@ class Automation:
         for card in self.trello_cards:
             try:
                 # Get reservation details from TAP Website and save in files
-                print('Get details from TAP for', card.card_name)
+                print('Get details from TAP for', card.name)
                 reservation_details = self.get_reservation_details(card)
                 self.update_trello_card(card, reservation_details)
             except Exception as err:
