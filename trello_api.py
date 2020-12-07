@@ -155,16 +155,6 @@ class TrelloLabel:
         self.color = raw['color']
 
 
-def delete_last_comment_remove_tag():
-    helper = TrelloHelper()
-    for card in helper.get_cards():
-        comments = helper.get_comments(card.card_id)
-        if len(comments) > 0:
-            comment = comments.pop()
-            d = helper.delete_comment(comment.card_id, comment.comment_id)
-            l = helper.remove_warn_label(comment.card_id)
-
-
 def tests():
     helper = TrelloHelper('yLKe88Cg')
     assert isinstance(helper.warn_label, TrelloLabel)
