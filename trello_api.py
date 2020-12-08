@@ -15,7 +15,7 @@ class TrelloHelper:
     def get_cards(self):
         return [TrelloCard(item) for item in self.trello_api.get_cards() if item['idList'] in self.list_ids]
 
-    def get_comments(self, card_id, identifier='Flight Number'):
+    def get_comments(self, card_id, identifier='Bot'):
         """
         Get all comment actions of a specific card
         :param card_id: the card id of the card to be looked at

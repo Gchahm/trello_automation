@@ -31,7 +31,7 @@ class Automation:
 
     def get_reservation_details(self, card):
         reservation_details = self.tap_scrapper.get_reservation_details(card.tap_url)
-        file_manager.add_flight({**card.__dict__, 'reservation_details': [det.__dict__ for det in reservation_details]})
+        file_manager.add_flight({**card.__dict__, 'reservation_details': [det.comment() for det in reservation_details]})
         return reservation_details
 
     def load_trello_cards(self):
@@ -52,7 +52,7 @@ class Automation:
         """
         print('Get comments from Trello for card', card.name)
         trello_comments = self.trello_helper.get_comments(card.card_id)
-        comment_text = '\n'.join(flight.comment() for flight in reservation_details)
+        comment_text = 'Bot \n\n' + '\n'.join(flight.comment() for flight in reservation_details)
         added = self.trello_helper.add_comment(card.card_id, comment_text)
 
         # Check if the card has comments and if the last comment match with current

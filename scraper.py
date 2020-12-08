@@ -1,5 +1,6 @@
 from selenium import webdriver
 import util
+from datetime import datetime
 
 
 class TapScrapper:
@@ -18,50 +19,55 @@ class TapScrapper:
 
     def get_reservation_details(self, url):
         self._driver.get(url)
-        self._get_reservation_components()
-        return [FlightInfo(text) for text in self.components_text]
+        self._wait_for_load()
+        return self._get_flight_tickets()
 
-    def _get_reservation_components(self):
+    @property
+    def driver(self):
+        return self._driver
+
+    def _wait_for_load(self):
         for i in range(1, self._max_wait + 1):
             self._driver.implicitly_wait(1)
-            self.components = self._driver.find_elements_by_tag_name('app-extras-flight')
-            self.components_text = [component.text for component in self.components]
-            if len(self.components_text) > 0 and len(self.components_text[0]) > 7:
+            components = self._driver.find_elements_by_tag_name('app-extras-flight')
+            components_text = [component.text for component in components]
+            if len(components_text) > 0 and len(components_text[0]) > 7:
                 break
             if i >= self._max_wait:
                 raise Exception('waited for to long')
 
+    def _get_flight_tickets(self):
+        script = 'return window.sessionStorage["INDRABFMDataStorageService._flight_tickets"]'
+        script_result = self._driver.execute_script(script)
+        return [Trip(i) for i in util.json.loads(script_result)]
 
-class FlightInfo:
-    def __init__(self, component_text):
-        self.raw = component_text
-        info = component_text.replace('Cancelado\n', '').replace('Voado\n', '').split('\n')
-        from_to = info[0]
-        split = from_to.find('para')
-        self.status = self._get_status()
-        self.flight_number = info[7]
-        self.from_location = info[3] + ' - ' + from_to[:split - 1]
-        self.to_location = info[5] + ' - ' + from_to[split + 5:]
-        self.date = info[1][:17] + ' at ' + info[2]
-        self.arrival_time = info[4]
-        self.trip_length = info[6]
 
-    def _get_status(self):
-        status = 'Cancelado' if self.raw.find('cancelado') > 0 else 'Ativo'
-        if self.raw.find('Voado') > 0:
-            status = 'Voado'
-        return status
+class Trip:
+
+    def __init__(self, raw):
+        self.segments = []
+        for seg in raw['item']['details']['listSegment']:
+            self.segments.append(Segment(seg))
 
     def comment(self):
-        comment = ''
-        comment += f'##Flight Number: {self.flight_number}\n'
-        comment += f'###Status: {self.status}\n'
-        comment += f'From: {self.from_location}\n'
-        comment += f'To: {self.to_location}\n'
-        comment += f'Date: {self.date}\n'
-        comment += f'Arrival Time: {self.arrival_time}\n'
-        comment += f'Trip Length: {self.trip_length}\n'
-        return comment
+        segments = '\n'.join([str(x) for x in self.segments])
+        return segments + '\n'
+
+
+class Segment:
+
+    def __init__(self, raw):
+        self.departureAirport = raw['departureAirport']
+        self.arrivalAirport = raw['arrivalAirport']
+        self.flight = raw['carrier'] + '-' + raw['flightNumber'].zfill(4)
+        d1 = datetime.fromisoformat(raw['departureDate'][:-1])
+        self.departureDate = d1.strftime(format='%d/%m/%y %H:%M')
+        self.flightFlown = raw['flightFlown']
+        self.add_status = raw['status']
+        self.status = ' **(VOADO)**' if self.flightFlown else '**(CANCELADO)**' if self.add_status[0] == '21' else ''
+
+    def __str__(self):
+        return f'{self.flight}: {self.departureAirport} - {self.arrivalAirport} {self.departureDate} {self.status}'
 
 
 if __name__ == '__main__':
@@ -70,5 +76,5 @@ if __name__ == '__main__':
     reservation = scrapper.get_reservation_details(url)
     assert len(reservation) == 1
     flight = reservation[0]
-    assert isinstance(flight, FlightInfo)
+    assert isinstance(flight, Trip)
     print('tests passed')
