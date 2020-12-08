@@ -11,6 +11,7 @@ class TrelloHelper:
         self.list_ids = [item['id'] for item in self.trello_api.get_lists() if item['name'] in ['Ida', 'Volta']]
         labels = [TrelloLabel(label) for label in self.trello_api.get_board_labels()]
         self.warn_label = [label for label in labels if label.color == 'purple'].pop()
+        self.error_label = [label for label in labels if label.color == 'orange'].pop()
 
     def get_cards(self):
         return [TrelloCard(item) for item in self.trello_api.get_cards() if item['idList'] in self.list_ids]
@@ -40,6 +41,9 @@ class TrelloHelper:
 
     def add_warn_label(self, card_id):
         return self.trello_api.add_label(card_id, self.warn_label.label_id)
+
+    def add_error_label(self, card_id):
+        return self.trello_api.add_label(card_id, self.error_label.label_id)
 
     def remove_warn_label(self, card_id):
         return self.trello_api.remove_label(card_id, self.warn_label.label_id)

@@ -28,6 +28,7 @@ class Automation:
                 # Log Error to Log file and save to error file
                 logging.error('error: ' + card.card_id + str(err))
                 file_manager.add_error({**card.__dict__, 'message': str(err)})
+                self.trello_helper.add_error_label(card.card_id)
 
     def get_reservation_details(self, card):
         reservation_details = self.tap_scrapper.get_reservation_details(card.tap_url)
