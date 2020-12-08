@@ -5,7 +5,7 @@ from datetime import datetime
 
 BASE_DIR = os.path.curdir
 FILES_DIR = os.path.join(BASE_DIR, 'files')
-START_TIME = datetime.now().strftime(format='%Y-%M-%dT%H:%m')
+START_TIME = datetime.now().strftime(format='%Y-%m-%dT%H:%M')
 
 dotenv_file = os.path.join(BASE_DIR, ".env")
 if os.path.isfile(dotenv_file):
