@@ -67,6 +67,8 @@ class Automation:
             print('Deleting extra comment from', card.name)
             self.trello_helper.delete_comment(comment.card_id, comment.comment_id)
 
+        self.trello_helper.remove_error_label(card.card_id)
+
 
 def review_comments():
     trello_helper = trello_api.TrelloHelper()

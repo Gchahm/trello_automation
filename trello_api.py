@@ -1,4 +1,6 @@
 from datetime import datetime
+from json.decoder import JSONDecodeError
+
 import requests
 import json
 import util
@@ -48,6 +50,8 @@ class TrelloHelper:
     def remove_warn_label(self, card_id):
         return self.trello_api.remove_label(card_id, self.warn_label.label_id)
 
+    def remove_error_label(self, card_id):
+        return self.trello_api.remove_label(card_id, self.error_label.label_id)
 
 class TrelloAPI:
 
@@ -118,8 +122,10 @@ class TrelloAPI:
             headers=headers,
             params=params,
         )
-        return json.loads(response.text)
-
+        try:
+            return json.loads(response.text)
+        except JSONDecodeError:
+            return {'error': response.text}
 
 class TrelloCard:
 
@@ -183,6 +189,9 @@ def tests():
     assert isinstance(deleted, dict)
     assert deleted['_value'] is None
     print('tests passed!')
+    warn_label = helper.add_warn_label(updated.card_id)
+
+    error_label = helper.add_error_label(updated.card_id)
 
 
 if __name__ == '__main__':
